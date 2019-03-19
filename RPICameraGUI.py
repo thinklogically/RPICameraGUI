@@ -8,8 +8,10 @@
 
 import os
 import wx
-import subprocess  # needed to run external program raspistill 
-from wx.lib.pubsub import Publisher
+import subprocess  # needed to run external program raspistill
+# wxPython was changed - import pub as Publisher.
+# and Publisher() to just Publisher.
+from wx.lib.pubsub import pub as Publisher
 
 defaultfilename = 'image.jpg'
         
@@ -31,7 +33,7 @@ class ViewerPanel(wx.Panel):
         self.image_name=""
 
         # set up for communication between instances of differnet classes
-        Publisher().subscribe(self.updateImages, ("update images"))
+        Publisher.subscribe(self.updateImages, ("update images"))
 
         self.layout()
 
@@ -153,7 +155,7 @@ class ViewerPanel(wx.Panel):
         # call external program ro take a picture
         subprocess.check_call([self.cmdln], shell=True)
         # update image on screen
-        Publisher().sendMessage("update images","")
+        Publisher.sendMessage("update images","")
 
        
     #----------------------------------------------------------------------
@@ -216,7 +218,7 @@ class ViewerPanel(wx.Panel):
         self.imageCtrl.SetBitmap(wx.BitmapFromImage(self.img))
         self.imageLabel.SetLabel(self.cmdln)
         self.Refresh()
-        Publisher().sendMessage("resize", "")
+        Publisher.sendMessage("resize", "")
                 
     #----------------------------------------------------------------------
     def rotPictureClock(self):
@@ -277,7 +279,7 @@ class ViewerFrame(wx.Frame):
         wx.Frame.__init__(self, None, title="Raspberry Pi Camera Simple GUI")
         panel = ViewerPanel(self)
         
-        Publisher().subscribe(self.resizeFrame, ("resize"))
+        Publisher.subscribe(self.resizeFrame, ("resize"))
         
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(panel, 1, wx.EXPAND)
@@ -294,7 +296,7 @@ class ViewerFrame(wx.Frame):
         
 #----------------------------------------------------------------------
 if __name__ == "__main__":
-    app = wx.PySimpleApp()
+    # wx.PySimpleApp() was deprecated. So just use wx.APP()
+    app = wx.App()
     frame = ViewerFrame()
     app.MainLoop()
-    
